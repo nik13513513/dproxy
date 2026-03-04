@@ -285,6 +285,7 @@ type CLIArgs struct {
 	unixSockMode             modeArg
 	mode                     proxyModeArg
 	auth                     string
+	realm                    string
 	verbosity                int
 	cert, key, cafile        string
 	list_ciphers             bool
@@ -385,6 +386,7 @@ func parse_args() *CLIArgs {
 	flag.Var(&args.unixSockMode, "unix-sock-mode", "set file mode for bound unix socket")
 	flag.Var(&args.mode, "mode", "proxy operation mode (http/socks5/stdio/port-forward)")
 	flag.StringVar(&args.auth, "auth", "none://", "auth parameters")
+	flag.StringVar(&args.realm, "realm", "dumbproxy", "realm value used in Proxy-Authenticate header when requesting authentication")
 	flag.IntVar(&args.verbosity, "verbosity", 20, "logging verbosity "+
 		"(10 - debug, 20 - info, 30 - warning, 40 - error, 50 - critical)")
 	flag.StringVar(&args.cert, "cert", "", "enable TLS and use certificate")
@@ -612,6 +614,9 @@ func run() int {
 	ttDemuxLogger := clog.NewCondLogger(log.New(logWriter, "TTDEMUX :",
 		log.LstdFlags|log.Lshortfile),
 		args.verbosity)
+
+	// apply realm override for Proxy-Authenticate header
+	auth.Realm = args.realm
 
 	// setup auth provider
 	authProvider, err := auth.NewAuth(args.auth, authLogger)

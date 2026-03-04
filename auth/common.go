@@ -13,6 +13,12 @@ import (
 	"github.com/tg123/go-htpasswd"
 )
 
+// Realm is the value used in the Proxy-Authenticate header when the proxy
+// requests credentials from the client.  It defaults to "dumbproxy" but may
+// be overridden by the caller (typically in main.main based on a CLI
+// argument).
+var Realm = "dumbproxy"
+
 func matchHiddenDomain(host, hidden_domain string) bool {
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
@@ -30,7 +36,7 @@ func requireBasicAuth(ctx context.Context, wr http.ResponseWriter, req *http.Req
 		!matchHiddenDomain(req.Host, hidden_domain) {
 		http.Error(wr, BAD_REQ_MSG, http.StatusBadRequest)
 	} else {
-		wr.Header().Set("Proxy-Authenticate", `Basic realm="dumbproxy"`)
+		wr.Header().Set("Proxy-Authenticate", `Basic realm="`+Realm+`"`)
 		wr.Header().Set("Content-Length", strconv.Itoa(len([]byte(AUTH_REQUIRED_MSG))))
 		wr.WriteHeader(407)
 		wr.Write([]byte(AUTH_REQUIRED_MSG))

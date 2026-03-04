@@ -90,6 +90,32 @@ There is a simple shell script available for complete installation of dumbproxy 
 
 Just run program and it'll start accepting connections on port 8080 (default).
 
+### Authentication realm
+
+The string provided in the `Proxy-Authenticate` header can be adjusted with the
+`-realm` command‑line option.  By default it is set to `dumbproxy`, matching the
+behaviour of earlier versions.
+
+When you run `dumbproxy -h` or encounter a usage error, the help output will
+include the following line:
+
+```
+-realm string
+    realm value used in Proxy-Authenticate header when requesting authentication (default "dumbproxy")
+```
+
+This parameter is useful if you need to present a custom prompt to clients
+or integrate with existing infrastructure that expects a particular realm.
+
+**Example:**
+
+```sh
+# custom realm for authentication prompt
+sudo dumbproxy -bind-address :8080 -auth 'static://?username=admin&password=123' \
+    -realm "MyProxy"
+```
+
+
 ### Example: plain proxy
 
 Run proxy on port 1234 with `Basic` authentication with username `admin` and password `123456`:
